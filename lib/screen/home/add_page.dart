@@ -5,6 +5,8 @@ import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:merchant_app/netwotrk/products.dart';
+import 'package:merchant_app/screen/home/home_page.dart';
+import 'package:merchant_app/screen/mainScreen/mainScreen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../shared/colors_value.dart';
@@ -108,9 +110,21 @@ class _AddPageState extends State<AddPage> {
     }
   }
 
+
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    name.dispose();
+    des.dispose();
+    price.dispose();
+    stock.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       floatingActionButton: Container(
         margin: const EdgeInsets.only(left: 36),
         child: ElevatedButton(
@@ -120,9 +134,12 @@ class _AddPageState extends State<AddPage> {
             final token =sp.getString('token').toString();
             final yes = await Products().postProducts(userId, name.text,
                 des.text, price.text, stock.text, img1!, img2!, img3!,token);
+            if(yes){
+              Navigator.pushReplacement(context, MaterialPageRoute(builder: (BuildContext c)=>const MainScreen()));
+            }
           },
           child: const Text(
-            'Register',
+            'Add New Product',
           ),
         ),
       ),
