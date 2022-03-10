@@ -10,35 +10,54 @@ import '../model/details_model.dart';
 class Products {
   final url = Url.url_host;
 
-   Future<DetailsModel> getProductById(String idProduct) async {
-    final urlId = url +'/products/$idProduct';
+  Future<bool> deleteProduct(String productId, String token) async {
+    final urlId = url + '/products/$productId';
+    Map<String, dynamic> result;
+
+    final response = await http.delete(
+      Uri.parse(urlId),
+      headers: {'Authorization': 'Bearer ' + token},
+    );
+    result = jsonDecode(response.body);
+    print(result);
+    if (response.statusCode == 200) {
+      return true;
+    } else {
+      final e = response.statusCode;
+      throw HttpException('error code $result');
+    }
+  }
+
+  Future<DetailsModel> getProductById(String idProduct) async {
+    final urlId = url + '/products/$idProduct';
     print(idProduct);
-    Map<String,dynamic> result,data;
+    Map<String, dynamic> result, data;
 
     final response = await http.get(Uri.parse(urlId));
-    result=jsonDecode(response.body);
+    result = jsonDecode(response.body);
     if (response.statusCode == 200) {
-
-      data=result['data'];
+      data = result['data'];
       return DetailsModel.fromJson(data);
-    }else{
-      final e=response.statusCode;
+    } else {
+      final e = response.statusCode;
       throw HttpException('error code $result');
     }
   }
 
   Future<bool> updateProducts(
-      String productId,
-      String name,
-      String des,
-      String prince,
-      String stock,
-      File img1,
-      File img2,
-      File img3,
-      token) async {
+    String productId,
+    String name,
+    String des,
+    int prince,
+    int stock,
+    img1,
+    img2,
+    img3,
+    token,
+    List images,
+  ) async {
     final urlGetproducts = url + '/products/$productId';
-    final request = await http.put(Uri.parse(urlGetproducts),
+    final x = await http.put(Uri.parse(urlGetproducts),
         headers: {'Authorization': 'Bearer ' + token},
         body: jsonEncode({
           "name": name,
@@ -46,31 +65,45 @@ class Products {
           'price': prince,
           'stock': stock
         }));
-    final urlMain = url + '/products/$productId/image';
-    final upadateMain = http.MultipartRequest('PATCH', Uri.parse(urlMain));
-    upadateMain.headers.addAll({'Authorization': 'Bearer ' + token});
-    upadateMain.files.add(http.MultipartFile.fromBytes(
-        'image', (await img1.readAsBytes()),
-        filename: img1.path.split('/').last));
-    await upadateMain.send();
-    //images update
-    final urlIms = url + '/products/$productId/images';
-    final upadateIms = http.MultipartRequest('POST', Uri.parse(urlIms));
-    upadateIms.headers.addAll({'Authorization': 'Bearer ' + token});
-    upadateIms.files.add(http.MultipartFile.fromBytes(
-        'images', (await img1.readAsBytes()),
-        filename: img1.path.split('/').last));
-    upadateIms.files.add(http.MultipartFile.fromBytes(
-        'images', (await img2.readAsBytes()),
-        filename: img2.path.split('/').last));
-    upadateIms.files.add(http.MultipartFile.fromBytes(
-        'images', (await img3.readAsBytes()),
-        filename: img3.path.split('/').last));
-    final resbar = await upadateMain.send();
-    if (resbar.statusCode == 200) {
+    if (img1) {
+      _updateMainImg(productId, token, img1);
+    }
+
+    if (img2 && img3) {
+      //delete images
+      for (int i = 0; i < 3; i++) {
+        final urlDelimg = url + '/products/$productId/${images[i]['id']}';
+        await http.delete(
+          Uri.parse(urlDelimg),
+          headers: {'Authorization': 'Bearer ' + token},
+        );
+      }
+      //images update
+      final urlIms = url + '/products/$productId/images';
+      final upadateIms = http.MultipartRequest('POST', Uri.parse(urlIms));
+      upadateIms.headers.addAll({'Authorization': 'Bearer ' + token});
+      upadateIms.files.add(http.MultipartFile.fromBytes(
+          'images', (await img1.readAsBytes()),
+          filename: img1.path.split('/').last));
+      upadateIms.files.add(http.MultipartFile.fromBytes(
+          'images', (await img2.readAsBytes()),
+          filename: img2.path.split('/').last));
+      upadateIms.files.add(http.MultipartFile.fromBytes(
+          'images', (await img3.readAsBytes()),
+          filename: img3.path.split('/').last));
+      final clear = await upadateIms.send();
+      if (clear.statusCode == 200) {
+        return true;
+      } else {
+        throw (clear.statusCode.toString());
+      }
+    }
+
+    if (x.statusCode == 200) {
       return true;
     } else {
-      throw (resbar.statusCode.toString());
+      print(jsonDecode(x.body).toString());
+      throw (x.statusCode.toString());
     }
   }
 
@@ -134,5 +167,15 @@ class Products {
       print(body);
       throw (body);
     }
+  }
+
+  Future _updateMainImg(String productId, String token, File img1) async {
+    final urlMain = url + '/products/$productId/image';
+    final upadateMain = http.MultipartRequest('PATCH', Uri.parse(urlMain));
+    upadateMain.headers.addAll({'Authorization': 'Bearer ' + token});
+    upadateMain.files.add(http.MultipartFile.fromBytes(
+        'image', (await img1.readAsBytes()),
+        filename: img1.path.split('/').last));
+    await upadateMain.send();
   }
 }

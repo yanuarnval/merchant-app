@@ -16,8 +16,8 @@ class _SplashPageState extends State<SplashPage> {
     // TODO: implement initState
     Future.delayed(const Duration(seconds: 3), () async {
       SharedPreferences sp = await SharedPreferences.getInstance();
-      final u = sp.getString('id').toString().trim();
-      final t = sp.getString('token').toString().trim();
+      final u = sp.getString('id').toString();
+      final t = sp.getString('token').toString();
       if (u.isNotEmpty && t.isNotEmpty) {
         Navigator.pushReplacement(context,
             MaterialPageRoute(builder: (BuildContext c) => MainScreen()));

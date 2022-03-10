@@ -11,10 +11,11 @@ class ProductsBloc extends Bloc<ProductsEvent, ProductsState> {
         SharedPreferences sp = await SharedPreferences.getInstance();
         final token = sp.getString('token').toString();
         final merchantId = sp.getString('id').toString();
+        print(merchantId);
         try {
           emit(LoadingProductsState());
           final response = await Products().getProducts(token, merchantId);
-          emit(SuccesProductstate(response));
+          emit(SuccesProductstate(response.reversed.toList()));
         } catch (e) {
           print(e);
         }

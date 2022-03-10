@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:merchant_app/screen/chat/list_user_page.dart';
 import 'package:merchant_app/screen/home/home_page.dart';
 import 'package:merchant_app/screen/manageorder/manageorder_page.dart';
 import 'package:merchant_app/screen/profil/profile_page.dart';
@@ -17,6 +19,7 @@ class _MainScreenState extends State<MainScreen> {
   static List<Widget> pages = <Widget>[
     const HomePage(),
     const ManageOrder(),
+    const ListUserPage(),
     const ProfilPage()
   ];
   int _index = 0;
@@ -53,24 +56,53 @@ class _MainScreenState extends State<MainScreen> {
               backgroundColor: Colors.white,
               showSelectedLabels: false,
               showUnselectedLabels: false,
-              selectedIconTheme:
-                  const IconThemeData(color: ColorsWeplant.colorPrimary),
               type: BottomNavigationBarType.fixed,
               items: [
                 BottomNavigationBarItem(
                     label: "",
-                    icon: Icon(Icons.home)),
+                    icon: SvgPicture.asset(
+                      'assets/icons/home_icon.svg',
+                      width: 24,
+                      height: 24,
+                      color: (_index == 0)
+                          ? ColorsWeplant.colorPrimary
+                          : Colors.black,
+                    )),
                 BottomNavigationBarItem(
                     label: "",
-                    icon: Icon(Icons.history)),
+                    icon: SvgPicture.asset(
+                      'assets/icons/order_icon.svg',
+                      width: 24,
+                      height: 24,
+                      color: (_index == 1)
+                          ? ColorsWeplant.colorPrimary
+                          : Colors.black,
+                    )),
                 BottomNavigationBarItem(
                     label: "",
-                    icon: Icon(Icons.person)),
+                    icon: SvgPicture.asset(
+                      'assets/icons/chat_icon.svg',
+                      width: 24,
+                      height: 24,
+                      color: (_index == 2)
+                          ? ColorsWeplant.colorPrimary
+                          : Colors.black,
+                    )),
+                BottomNavigationBarItem(
+                    label: "",
+                    icon: SvgPicture.asset(
+                      'assets/icons/profil_icon.svg',
+                      width: 24,
+                      height: 24,
+                      color: (_index == 3)
+                          ? ColorsWeplant.colorPrimary
+                          : Colors.black,
+                    ))
               ],
               currentIndex: value,
               onTap: (index) {
                 setState(() {
-                  _index=index;
+                  _index = index;
                 });
               }),
         ),

@@ -139,30 +139,55 @@ class _EditPageState extends State<EditPage> {
       resizeToAvoidBottomInset: false,
       floatingActionButton: Container(
         margin: const EdgeInsets.only(left: 36),
-        child: ElevatedButton(
-          onPressed: () async {
-            SharedPreferences sp = await SharedPreferences.getInstance();
-            final token = sp.getString('token').toString();
-            final yes = await Products().updateProducts(
-                widget.productModel,
-                name.text,
-                des.text,
-                price.text,
-                stock.text,
-                img1!,
-                img2!,
-                img3!,
-                token);
-            if (yes) {
-              Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(
-                      builder: (BuildContext c) => const MainScreen()));
-            }
-          },
-          child: const Text(
-            'Add New Product',
-          ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: [
+            ElevatedButton(
+                style: ElevatedButton.styleFrom(primary: Colors.red),
+                onPressed: () async {
+                  SharedPreferences sp = await SharedPreferences.getInstance();
+                  final token = sp.getString('token').toString();
+                  final yes = await Products()
+                      .deleteProduct(widget.productModel, token);
+                  if (yes) {
+                    Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(
+                            builder: (BuildContext c) => const MainScreen()));
+                  }
+                },
+                child: const Text('Delete Product')),
+            const SizedBox(
+              height: 10,
+            ),
+            ElevatedButton(
+              onPressed: () async {
+                SharedPreferences sp = await SharedPreferences.getInstance();
+                final token = sp.getString('token').toString();
+                final yes = await Products().updateProducts(
+                  widget.productModel,
+                  name.text,
+                  des.text,
+                  int.parse(price.text),
+                  int.parse(stock.text),
+                  (img1) != null ? img1 : false,
+                  (img1) != null ? img1 : false,
+                  (img1) != null ? img1 : false,
+                  token,
+                  detailsModel.images!,
+                );
+                if (yes) {
+                  Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(
+                          builder: (BuildContext c) => const MainScreen()));
+                }
+              },
+              child: const Text(
+                'Update Product',
+              ),
+            ),
+          ],
         ),
       ),
       appBar: AppBar(
@@ -395,6 +420,9 @@ class _EditPageState extends State<EditPage> {
                               ),
                             ),
                           ),
+                    const SizedBox(
+                      height: 120,
+                    )
                   ],
                 ),
               ),
@@ -410,7 +438,7 @@ class _EditPageState extends State<EditPage> {
     stock.text = produGet.stok.toString();
     price.text = produGet.price.toString();
     setState(() {
-      _isloading=false;
+      _isloading = false;
     });
   }
 }
